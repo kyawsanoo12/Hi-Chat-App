@@ -127,7 +127,7 @@ export default makeStyles((theme) => ({
         borderBottom: `1px solid ${theme.palette.grey.main}`,
         padding: "5px",
         height:"50px",
-        justifyContent: "space-between",
+        justifyContent:"space-between",
         [theme.breakpoints.down("sm")]: {
             padding:"0"
         }
@@ -262,7 +262,11 @@ export default makeStyles((theme) => ({
         right: "20px",
         top: "50px",
         
-   },
+    },
+    seenMsg: {
+        width: theme.spacing(2) || "20px",
+        height:theme.spacing(2) || "20px"
+    },
     replyContainer: {
         position: "fixed",
         bottom:"80px",
@@ -293,7 +297,7 @@ export default makeStyles((theme) => ({
         display: "flex",
         position: "relative",
         marginBottom: "40px",
-       
+       justifyContent:"space-between"
     },
     chatMessageTime: {
         position: "absolute",

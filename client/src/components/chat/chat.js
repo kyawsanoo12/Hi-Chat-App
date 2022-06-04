@@ -3,7 +3,7 @@ import useStyles from "./style";
 import CreateIcon from '@material-ui/icons/Create';
 import SearchOutlinedIcon from "@material-ui/icons/SearchOutlined";
 import ArrowLeftIcon from "@material-ui/icons/ArrowBack";
-import {  Container, Grid } from '@material-ui/core';
+import {  Container, Grid, Snackbar } from '@material-ui/core';
 import {  IconButton, InputAdornment, Paper, TextField, Typography } from '@material-ui/core';
 import ChatBox from './chatBox/chatBox';
 import ChatBar from './TobBar/ChatBar';
@@ -16,9 +16,11 @@ import ConversationSide from './conversationSide/conversationSide';
 import CreateConversationSide from './createConversation/createConversation';
 import { io } from "socket.io-client";
 import { useNavigate, useParams } from 'react-router-dom';
-import { fetchAllUsers } from '../../api/Api';
 import ConversationDetailSide from './detailsSide.js';
-import { END_CHAT_LOADING, START_CHAT_LOADING } from '../../actionTypes/ActionTypes';
+import { API_HOST } from '../../api/Api';
+import { Howl } from "howler";
+import MessageAlert from "../../alert/Messenger - Notification Tone.mp3";
+
 
 function Chat() {
      const socket = useRef();
@@ -39,9 +41,9 @@ const [arriveMessage, setArriveMessage] = useState(null);
     const [details, setDetails] = useState(false);
 
     const user_id = conversation?.members.find((user) => user !== userId);
- 
+ const sound=new Howl({src:[MessageAlert],html5:true,autoplay:false})
     const otherUser = users?.find((u) => u._id === user_id);
- 
+   
 
     useEffect(() => {
         dispatch(fetchConversations(userId));
@@ -54,11 +56,16 @@ const [arriveMessage, setArriveMessage] = useState(null);
              setArriveMessage(data);
             
     })
-      setConversations(conversationsState)
+        setConversations(conversationsState)
+          socket.current.on("messageAlert",  ({ data }) => {
+                data.conversationId !== conversationId  && sound.play();
+            
+        });
+      
     }, []);
 
     useEffect(() => {
-        dispatch(fetchConversations());
+        //dispatch(fetchConversations());
         setConversations(conversationsState);
         
     }, [arriveMessage]);
@@ -76,10 +83,11 @@ const [arriveMessage, setArriveMessage] = useState(null);
 
     useEffect(() => {
         if (currentId) {
-           
+            
             dispatch(getMessages(currentId));
-           
+          
             navigate("/conversation/" + currentId);
+           
             
         }
     },[currentId])
@@ -98,6 +106,7 @@ const [arriveMessage, setArriveMessage] = useState(null);
 
     return (
         <Paper className={classes.root} >
+       
             <Grid container >
                 <Grid item xs={12} md={3} className={currentId ? classes.conversationGridNone : classes.conversationGrid} >
                 <ChatBar/>

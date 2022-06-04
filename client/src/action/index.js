@@ -50,11 +50,12 @@ export const getMessages = (conversationId) => async (dispatch) => {
 
 export const newMessage = ({conversationId,  text,file,to,replyText ,status,image,replyImage,hasFinished,sender,video},socket,otherUser) => async (dispatch) => {
     try {
+       
         dispatch({ type: ADD_MESSAGE, payload: { conversationId, text, file, to, replyText, status, image, replyImage, hasFinished, sender ,video} });
-        
+         dispatch({ type: FETCH_MESSAGE_IN_CONVER, payload: { conversationId, text, file,  status, image, replyImage, sender } });
         const { data } = await addMessages({conversationId,text,file,to,replyText,replyImage});
-        console.log(data)
-        dispatch({ type: FETCH_MESSAGE_IN_CONVER, payload: data });
+      
+       
 
         socket.current.emit("sendMessage", {conversationId:data?.conversationId,messageId:data._id, senderId: data.sender, receiverId: otherUser?._id, text: data.text, file:{image: data.file.image,video:data.file.video},data});
         

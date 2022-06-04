@@ -13,10 +13,11 @@ import { successMsg } from '../../../action';
 
 function Message({ message,own ,otherUser,socket,setReply,index,messages,users}) {
     const classes = useStyles();
-    
+   
     const [show, setShow] = useState(false);
     const [defaultShow, setDefaultShow] = useState(false);
     const reactName = users?.filter((u) => u._id === message?.react?.responseId)[0];
+    
     const dispatch = useDispatch();
     const [sendSuccess, setSendSuccess] = useState("");
     //const [unSuccessImg, setUnSuccessImg] = useState(true);
@@ -27,11 +28,12 @@ function Message({ message,own ,otherUser,socket,setReply,index,messages,users})
             
         })
     },[])
- 
+     
+
     return ( 
         <>
         <div className={!own ? classes.chatMessage : classes.senderMessage} key={message?._id} onMouseEnter={() => setShow(true)} onMouseLeave={() => { !defaultShow && setShow(false) }}>
-                
+                 <div style={{display:"flex"}}>
                   {!own &&
               <Avatar src={otherUser?.image ? `${API_HOST}/images/user/${otherUser?.image}` : null} className={ classes.messageAvatar} />
             }
@@ -78,17 +80,22 @@ function Message({ message,own ,otherUser,socket,setReply,index,messages,users})
                     {message?.text &&
                                 <div> 
                                
-                        <div className={ message.status === "active" || message.status === "unSend"? !own  ? classes.receive : classes.sender : classes.removeMsgSender}   >
+                                    <div className={message.status === "active" || message.status === "unSend" ? !own ? classes.receive : classes.sender : classes.removeMsgSender}   >
+                                        <div>
                                         <p className={classes.text} >{message?.text}</p>
                                         {
                                             message.status === "active" && message?.react?.responseId &&
                                             <Tooltip placement={!own ? "right" : "left"} title={reactName?.name}>
                                            <div className={!own ? classes.receiverSideEmoji:classes.senderSideEmoji} style={{cursor:"pointer"}}>
                        {message.react.emoji} 
-                 
-                                                    </div>
+                                 
+                                                        </div>
+                                                        
                                                     </Tooltip>
-                 }
+                                                
+                                            }
+                                        </div>
+                                     
                                         </div>
                                        
                        </div>
@@ -143,8 +150,10 @@ function Message({ message,own ,otherUser,socket,setReply,index,messages,users})
                                     {own && messages.length - 1 === index &&
                                         <div style={{ marginTop: "30px" }}>
                                             {
-                                                message?.status === "active" || message?.status === "removed" ?
-                                                    <CheckCircleOutlineIcon style={{ fontSize: "13px", color: "grey" }} />
+                                        message?.status === "active" || message?.status === "removed" ?
+                                            !message?.seen ?
+                                                <CheckCircleOutlineIcon style={{ fontSize: "13px", color: "grey" }} /> :
+                                                 <Avatar src={otherUser?.image ? `${API_HOST}/images/user/${otherUser.image}` : null} sizes="small" className={classes.seenMsg } />
                                                     :
                                                     <RadioButtonUncheckedIcon style={{ fontSize: "13px", color: "grey" }} />
                                             }
@@ -156,8 +165,12 @@ function Message({ message,own ,otherUser,socket,setReply,index,messages,users})
                  
                 </div>
          
-            <span className={!own ? classes.chatMessageTime : classes.chatSenderMessageTime}>{moment(message?.createdAt).fromNow()}</span>
-
+                    <span className={!own ? classes.chatMessageTime : classes.chatSenderMessageTime}>{moment(message?.createdAt).fromNow()}</span>
+                    </div>
+                {message?.sender === otherUser?._id && messages.length -1 === index &&  
+                    <div style={{ position: "absolute", bottom: "0", right: "0" }}>  <Avatar src={`${API_HOST}/images/user/${otherUser?.image}`} style={{width:"20px",height:"20px"}} />
+                    </div>
+                }
           </div> 
            
           

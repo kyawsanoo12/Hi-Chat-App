@@ -8,12 +8,12 @@ import TextBox from '../textBox/TextBox';
 import {  useDispatch, useSelector } from 'react-redux';
 import { API_HOST } from '../../../api/Api';
 import Message from './message';
-import { Howl } from "howler";
+
 import { getMessages } from '../../../action';
 import { useNavigate, useParams } from 'react-router-dom';
 import ArrowBackIcon from "@material-ui/icons/ArrowBack"
-import noMessagePng from "../../../logo/message.png";
-import { ADD_MESSAGE } from '../../../actionTypes/ActionTypes';
+
+import { ADD_MESSAGE, FETCH_MESSAGE_IN_CONVER, SEND_SUCCESS_MSG } from '../../../actionTypes/ActionTypes';
 import Replybox from '../textBox/replyBox';
 
 function ChatBox({ conversation, userId, users, conversationId,setOnlineUser ,onlineUser,socket,setDetails,details,otherUser,user_id}) {
@@ -28,7 +28,7 @@ function ChatBox({ conversation, userId, users, conversationId,setOnlineUser ,on
     const [reply, setReply] = useState(null);
     const online = onlineUser?.filter((u) => u.userId === user_id);
     const loading= useSelector((state) => state.loading);
-    const sound = new Howl({ src: `${API_HOST}/audio/alert/Messenger - Notification Tone.mp3` })
+    
     const [typing, setTyping] = useState(null);
      const replyReceiver = users.filter((u) => u._id === reply?.sender)[0];
     const dispatch = useDispatch();
@@ -41,7 +41,7 @@ function ChatBox({ conversation, userId, users, conversationId,setOnlineUser ,on
     useEffect(() => {
        
         socket.current.on("getMessages", data => {
-         
+            dispatch({ type: FETCH_MESSAGE_IN_CONVER, payload: data });
             setArrivalMessage({ conversationId:data.conversationId,sender: data.senderId, text: data.text, createdAt: Date.now(), file:data.file, status: data.status });
            
         });
@@ -53,10 +53,7 @@ function ChatBox({ conversation, userId, users, conversationId,setOnlineUser ,on
             setTyping(data);
           
         })
-        socket.current.on("messageAlert", ({ senderId, receiverId }) => {
-           
-            receiverId === userId ? sound.play() : sound.stop();
-        });
+        
         socket.current.on("getRemoveMessage", data => {
             setRemoveMsg(data);
         })
@@ -75,7 +72,7 @@ function ChatBox({ conversation, userId, users, conversationId,setOnlineUser ,on
         dispatch(getMessages(conversationId));
         arrivalMessage && conversation.members.includes(arrivalMessage.sender) &&
             dispatch({ type: ADD_MESSAGE, arrivalMessage });
-           // setMessages(prev => [...prev, arrivalMessage]);
+         
          
     }, [arrivalMessage]);
     
@@ -156,7 +153,9 @@ function ChatBox({ conversation, userId, users, conversationId,setOnlineUser ,on
                                                             {message?.sender !== userId ?
                                                                 <Message message={message} otherUser={otherUser} socket={socket} setReply={setReply} typing={typing} index={index} messages={messages} users={users } />
                                                                 :
-                                                                <Message message={message} own socket={socket} setReply={setReply} typing={typing} index={index} messages={messages} users={users} />
+                                                                <Message
+                                                                    otherUser={otherUser}
+                                                                    message={message} own socket={socket} setReply={setReply} typing={typing} index={index} messages={messages} users={users} />
                                                             }
                                                         </div>
                                                     }

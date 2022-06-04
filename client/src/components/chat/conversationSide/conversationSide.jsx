@@ -20,13 +20,14 @@ function ConversationSide({ users,conversations,userId,setCurrentId,onlineUser ,
   //console.log(messages)
   const navigate = useNavigate();
   const [show, setShow] = useState("");
-  
+   
+
  
     const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
-  
+ 
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -53,7 +54,10 @@ function ConversationSide({ users,conversations,userId,setCurrentId,onlineUser ,
          
           return (
             <div key={conversation?._id} className={currentId === conversation._id ? classes.conversationContainerColor: classes.conversationContainer }  onMouseEnter={()=>setShow(conversation._id)} onMouseLeave={()=>setShow(false)}>
-              <ButtonBase className={classes.buttonBase} onClick={() => setCurrentId(conversation._id)} style={{ width: "300px" }}>
+              <ButtonBase className={classes.buttonBase} onClick={() => {
+                
+                setCurrentId(conversation._id)
+              }} style={{ width: "300px" }}>
                 <div className={classes.avatarContainer}>
                   <Avatar src={`${API_HOST}/images/user/${user?.image}`} />
                   {online?.length > 0 &&
@@ -68,11 +72,12 @@ function ConversationSide({ users,conversations,userId,setCurrentId,onlineUser ,
                   </div>
                   <div >
                     {msg?.map((m) => {
-                      if (m.file?.image && m.conversationId === conversation._id) {
+                     
+                      if (m && m.file?.image && m.conversationId === conversation._id) {
                         return (
                                <p key={m._id} style={{ color: "grey" }}>{m.sender === userId ? `You: Send Image` : "Receive Image"} </p> 
                              )
-                      } else if (m.file?.video && m.conversationId === conversation._id) {
+                      } else if (m && m.file?.video && m.conversationId === conversation._id) {
                         return (
                             <p key={m._id} style={{ color: "grey" }}>{m.sender === userId ? `You: Send Video` : "Receive Video"} </p>
                         )
@@ -89,12 +94,17 @@ function ConversationSide({ users,conversations,userId,setCurrentId,onlineUser ,
               
               </ButtonBase>
               {msg.map((m) => {
-              
-                return !m?.seen && m.sender === userId && 
+                return  m && m.sender === userId && m.conversationId === conversation._id &&
                   <div className={classes.delivaredAndSeenInConver}>
-                  <CheckCircleOutlineIcon style={{ fontSize: "15px", color: "grey" }} />
+                    { m.status === "active" ? !m.seen ?
+                      <CheckCircleOutlineIcon style={{ fontSize: "15px", color: "grey" }} />
+                      :
+                      <Avatar src={`${API_HOST}/images/user/${user?.image}`}  className={classes.seenMsg } />
+                      :
+                      <RadioButtonUncheckedIcon style={{fontSize:"15px",color:"grey"}} />
+                    }
                 </div>
-               
+                  
                 })}
                     <span className={classes.friendMessageTime}>{moment(conversation.createdAt).fromNow()}</span>
               {show === conversation._id &&

@@ -74,10 +74,10 @@ export default (httpServer) => {
                 
             } 
             if (user.length > 0 && user !== []) {
-                
+            
                 io.to(user[0]?.socketId).emit("getMessages", { conversationId,senderId, text, file,status: "active", receiverId });
                 io.emit("sendSuccess");
-                io.to(user[0]?.socketId).emit("messageAlert", { senderId, receiverId });
+                io.to(user[0]?.socketId).emit("messageAlert", { data });
                 
             } else  {
                 return;
